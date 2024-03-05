@@ -1,0 +1,233 @@
+﻿@model CU.OnBoarding.DataAccess.Model.EmailTemplate
+@{
+    ViewBag.Title = "Add";
+    ViewBag.Page = "emailtemplate";
+}
+<header class="page-header">
+    <h2>Add Email Template</h2>
+    <script src="~/tinymce/tinymce.min.js"></script>
+</header>
+<div class="row">
+    <div class="col-lg-12">
+        <section class="panel">
+            <header class="panel-heading">
+                <h2 class="panel-title"></h2>
+            </header>
+            <div class="panel-body">
+                @using (Html.BeginForm("Add", "EmailTemplate", FormMethod.Post, new { @class = "form-horizontal form-bordered", enctype = "multipart/form-data", onsubmit = "showLoader(this);", @novalidate = "novalidate" }))
+                {
+                    if (TempData["Message"] != null)
+                    {
+                        <div class="alert alert-success">
+                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                            <strong>@TempData["Message"]</strong>
+                        </div>
+                    }
+                    if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger">
+                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                            <strong>@TempData["Error"]</strong>
+                        </div>
+                    }
+
+                    @*//@Html.ValidationSummary(true, "", new { @class = "text-danger" })*@
+                    <div class="form-group">
+                        <label class="control-label col-md-2">
+                            Template Name
+                        </label>
+                        <div class="controls col-md-3">@Html.TextBoxFor(c => c.Name, new { @class = "form-control" ,@required=""})</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-2">
+                            Sender Name
+                        </label>
+                        <div class="controls col-md-3">@Html.TextBoxFor(c => c.SenderName, new { @class = "form-control" })</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-2">
+                            Sender Email
+                        </label>
+                        <div class="controls col-md-3">@Html.TextBoxFor(c => c.SenderEmail, new { @class = "form-control" })</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-2">
+                            Email Subject
+                        </label>
+                        <div class="controls col-md-3">@Html.TextBoxFor(c => c.EmailSubject, new { @class = "form-control", @required = "" })</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-2">
+                            Email Body
+                        </label>
+                        <div class="controls col-md-7">@Html.TextAreaFor(c => c.EmailBody, new { @class = "form-control", rows = 17 })</div>
+                        <div class="col-md-3">
+                            <h5>Placeholders</h5>
+                            <ul>
+                                <li>{USER}</li>
+                                <li>{ACCOUNTNUBER}</li>
+                                @*<li>{LOGO}</li>*@
+                            </ul>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <div class="col-md-offset-2 col-md-10">
+                            <input type="submit" id="submitemailtemplate" name="submitemailtemplate" value="Save" class="btn btn-primary" />
+                            <a href="~/EmailTemplate" class="mb-xs mt-xs mr-xs btn btn-danger">Cancel</a>
+                        </div>
+                    </div>
+
+                }
+            </div>
+        </section>
+    </div>
+</div>
+@section scripts{
+
+
+    <script type="text/javascript">
+        tinymce.init({
+            selector: 'textarea',
+            height: 300,
+            theme: 'modern',
+            branding: false,
+            plugins: [
+                'advlist autolink lists link image charmap print preview hr anchor pagebreak',
+                'searchreplace wordcount visualblocks visualchars code fullscreen',
+                'insertdatetime media nonbreaking save table contextmenu directionality',
+                'emoticons template paste textcolor colorpicker textpattern imagetools'
+            ],
+            menubar: false,
+            toolbar1: 'insertfile undo redo | styleselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent',
+            toolbar2: 'link | print preview | forecolor backcolor emoticons | fontselect fontsizeselect formatselect',
+            image_advtab: true,
+            automatic_uploads: true,
+            file_picker_types: 'image',
+            convert_urls: false,
+            content_css: [
+                '//fonts.googleapis.com/css?family=Lato:300,300i,400,400i',
+                '//www.tinymce.com/css/codepen.min.css'],
+
+            // and here's our custom image picker
+            file_picker_callback: function (cb, value, meta) {
+                var input = document.createElement('input');
+                input.setAttribute('type', 'file');
+                input.setAttribute('accept', 'image/*');
+
+                // Note: In modern browsers input[type="file"] is functional without
+                // even adding it to the DOM, but that might not be the case in some older
+                // or quirky browsers like IE, so you might want to add it to the DOM
+                // just in case, and visually hide it. And do not forget do remove it
+                // once you do not need it anymore.
+
+                input.onchange = function () {
+                    var file = this.files[0];
+                    alert(this.files[0].name);
+                    var reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    //$("#Filedata").val(reader.result.split(',')[1]);
+
+
+                    reader.onload = function () {
+                        // Note: Now we need to register the blob in TinyMCEs image blob
+                        // registry. In the next release this part hopefully won't be
+                        // necessary, as we are looking to handle it internally.
+                        var id = 'blobid' + (new Date()).getTime();
+                        var blobCache = tinymce.activeEditor.editorUpload.blobCache;
+                        var base64 = reader.result.split(',')[1];
+                        var blobInfo = blobCache.create(id, file, base64);
+                        blobCache.add(blobInfo);
+                        //alert(base64);
+
+
+                        //$.ajax({
+                        //    url: '/EmailTemplate/Upload',
+                        //    type: "POST",
+                        //    dataType: "json",
+                        //    data: { base64: reader.result.split(',')[1] },
+                        //    success: function (data) {
+                        //        if (data != "") {
+                        //            // $('#mceu_45').find("*").prop("disabled", true);
+                        //            // LoadProgressBar(result); //calling LoadProgressBar function to load the progress bar.
+                        //            alert(data);
+                        //        }
+                        //    },
+                        //    error: function (err) {
+                        //        alert(err.statusText);
+                        //    }
+                        //});
+                        // call the callback and populate the Title field with the file name
+                        cb(blobInfo.blobUri(), { title: file.name });
+                    };
+                };
+
+                input.click();
+            },
+
+            style_formats: [{
+                title: 'Bold text',
+                inline: 'b'
+            }, {
+                title: 'Red text',
+                inline: 'span',
+                styles: {
+                    color: '#ff0000'
+                }
+            }, {
+                title: 'Red header',
+                block: 'h1',
+                styles: {
+                    color: '#ff0000'
+                }
+            }, {
+                title: 'Example 1',
+                inline: 'span',
+                classes: 'example1'
+            }, {
+                title: 'Example 2',
+                inline: 'span',
+                classes: 'example2'
+            }, {
+                title: 'Table styles'
+            }, {
+                title: 'Table row 1',
+                selector: 'tr',
+                classes: 'tablerow1'
+            }]
+        });
+
+        var $w1validator = $(".panel form").validate({
+            highlight: function (element) {
+                $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
+            },
+            success: function (element) {
+                $(element).closest('.form-group').removeClass('has-error');
+                $(element).remove();
+            },
+            errorPlacement: function (error, element) {
+                element.parent().append(error);
+            },
+            messages: {
+                Name: "Please Enter Template Name",
+                EmailSubject: "Please Enter Subject",
+                EmailBody:"Please Enter Body Content"
+            }
+        });
+
+        $("#submitemailtemplate").click(function () {
+            var validated = $('.panel form').valid();
+            if (!validated) {
+                $w1validator.focusInvalid();
+                return false;
+            }
+        }
+        );
+    </script>
+
+
+}
+
+
+

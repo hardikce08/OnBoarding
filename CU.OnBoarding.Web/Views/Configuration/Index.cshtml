@@ -1,0 +1,489 @@
+﻿@model CU.OnBoarding.DataAccess.Model.ConfigurationVieWModel
+@{
+    ViewBag.Title = "Configuration";
+    ViewBag.Page = "home";
+}
+@{
+    var listItems = new List<SelectListItem>
+{
+   new SelectListItem{ Text="Select Frequency", Value = "" },
+   new SelectListItem{ Text="Daily", Value = "Daily" },
+   new SelectListItem{ Text="Weekly", Value = "Weekly" },
+   new SelectListItem{ Text="Monthly", Value = "Monthly" }
+};
+
+    var WeekDaysItems = new List<SelectListItem>
+{
+   new SelectListItem{ Text="MONDAY", Value = "MONDAY" },
+   new SelectListItem{ Text="TUESDAY", Value = "TUESDAY" },
+   new SelectListItem{ Text="WEDNESDAY", Value = "WEDNESDAY" },
+   new SelectListItem{ Text="THURSDAY", Value = "THURSDAY" },
+   new SelectListItem{ Text="FRIDAY", Value = "FRIDAY" },
+   new SelectListItem{ Text="SATURDAY", Value = "SATURDAY" },
+   new SelectListItem{ Text="SUNDAY", Value = "SUNDAY" },
+};
+
+    var MonthDaysItems = new List<SelectListItem>();
+
+    for (int i = 1; i <= 31; i++)
+    {
+        MonthDaysItems.Add(new SelectListItem { Text = i.ToString(), Value = i.ToString() });
+    }
+
+
+}
+<header class="page-header">
+    <h2>Configuration</h2>
+    <style>
+        .pager {
+             margin: 0px 0 !important;
+        }
+        /* The container */
+            .custom-checkboxcontainer {
+            display: block;
+            position: relative;
+            padding-left: 35px;
+            padding-top: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+            /* Hide the browser's default checkbox */
+            .custom-checkboxcontainer input {
+                position: absolute;
+                opacity: 0;
+                cursor: pointer;
+                height: 0;
+                width: 0;
+            }
+
+        /* Create a custom checkbox */
+        .checkmark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 21px;
+            width: 22px;
+            background-color: #eee;
+            margin-top:9px;
+        }
+
+        /* On mouse-over, add a grey background color */
+        .custom-checkboxcontainer:hover input ~ .checkmark {
+            background-color: #ccc;
+        }
+
+        /* When the checkbox is checked, add a blue background */
+        .custom-checkboxcontainer input:checked ~ .checkmark {
+            background-color: #2196F3;
+        }
+
+        /* Create the checkmark/indicator (hidden when not checked) */
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+
+        /* Show the checkmark when checked */
+        .custom-checkboxcontainer input:checked ~ .checkmark:after {
+            display: block;
+        }
+
+        /* Style the checkmark/indicator */
+        .custom-checkboxcontainer .checkmark:after {
+            left: 9px;
+            top: 5px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 3px 3px 0;
+            -webkit-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+            transform: rotate(45deg);
+        }
+    </style>
+</header>
+<div class="row">
+    <div class="col-lg-12">
+        <section class="panel  form-wizard" id="w1">
+            <header class="panel-heading">
+                @*<div class="panel-actions">
+                        <a href="#" class="fa fa-caret-down"></a>
+                        <a href="#" class="fa fa-times"></a>
+                    </div>*@
+
+                <h2 class="panel-title"></h2>
+            </header>
+            <div class="panel-body panel-body-nopadding">
+
+                <div class="wizard-progress wizard-progress-lg">
+                    <div class="steps-progress">
+                        <div class="progress-indicator"></div>
+                    </div>
+                    <ul class="wizard-steps">
+                        <li class="active" data-id="step1">
+                            <a href="#w1-step1" data-toggle="tab"><span>1</span># Days Config</a>
+                        </li>
+                        <li data-id="step2">
+                            <a href="#w1-step2" data-toggle="tab"><span>2</span>Select List</a>
+                        </li>
+                        <li data-id="step3">
+                            <a href="#w1-step3" data-toggle="tab"><span>3</span>Confirmation</a>
+                        </li>
+                    </ul>
+                </div>
+
+                @*<div class="wizard-tabs">
+                        <ul class="wizard-steps">
+                            <li class="active">
+                                <a href="#w1-account" data-toggle="tab" class="text-center">
+                                    <span class="badge hidden-xs">1</span>
+                                    Frequency
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#w1-profile" data-toggle="tab" class="text-center">
+                                    <span class="badge hidden-xs">2</span>
+                                    List
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#w1-confirm" data-toggle="tab" class="text-center">
+                                    <span class="badge hidden-xs">3</span>
+                                    Email
+                                </a>
+                            </li>
+                        </ul>
+                    </div>*@
+                @using (Html.BeginForm("Index", "Configuration", FormMethod.Post, new { @class = "form-horizontal form-bordered", enctype = "multipart/form-data", onsubmit = "showLoader(this);", @novalidate = "novalidate" }))
+                {
+                    if (TempData["Message"] != null)
+                    {
+                        <div class="alert alert-success">
+                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                            <strong>@TempData["Message"]</strong>
+                        </div>
+                    }
+                    if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger">
+                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                            <strong>@TempData["Error"]</strong>
+                        </div>
+                    }
+                    <div class="tab-content">
+                        <div id="w1-step1" class="tab-pane active">
+                            <div class="field_wrapper">
+                                @if (Model.lstDaysConfiguration.Count > 0)
+                                {
+                                    for (int i = 0; i < Model.lstDaysConfiguration.Count; i++)
+                                    {
+                                        var item = Model.lstDaysConfiguration[i];
+                                        string daysstring = "";
+                                        int rownum = i + 1;
+                                        if (rownum == 1)
+                                        {
+                                            daysstring = "st";
+                                        }
+                                        else if (rownum == 2)
+                                        {
+                                            daysstring = "nd";
+                                        }
+                                        else if (rownum == 3)
+                                        {
+                                            daysstring = "rd";
+                                        }
+                                        else if (rownum > 3)
+                                        {
+                                            daysstring = "th";
+                                        }
+                                        if (i == 0)
+                                        {
+                                <div class="form-group">
+                                    @*<label class="col-sm-4 control-label configlabel" id="configlabel1" for="w1-days">@rownum@daysstring Communication Days</label>*@
+                                    <p class="col-sm-4 control-label configlabel" id="configlabel1" for="w1-days">@rownum<sup>@daysstring</sup> Communication Days</p>
+                                    <div class="col-sm-2">
+                                        <input type="text" class="form-control input-sm" name="days1" id="days1" value="@item.Value" required>
+                                    </div>
+                                    <div class="col-sm-1">
+                                        <a href="javascript:void(0);" class="add_button" title="Add field">
+                                            <img src="~/Theme/Images/add_icon.png" />
+                                        </a>
+                                    </div>
+                                </div>
+                                        }
+                                        else
+                                        {
+                            <div class="form-group">
+                                @*<label class="col-sm-4 control-label configlabel" id="@("configlabel" + rownum)">@rownum@daysstring Communication Days</label>*@
+                                <p class="col-sm-4 control-label configlabel" id="@("configlabel" + rownum)">@rownum<sup>@daysstring</sup> Communication Days</p>
+                                <div class="col-sm-2">
+                                    <input type="text" class="form-control input-sm" name="@("days" + rownum)" value="@item.Value" id="@("days" + rownum)" required />
+                                </div>
+                                <div class="col-sm-1">
+                                    <a href="javascript:void(0);" class="remove_button">
+                                        <img src="../Theme/Images/remove_icon.png" />
+                                    </a>
+                                </div>
+                            </div>
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                            <div class="form-group">
+                                <p class="col-sm-4 control-label configlabel" id="configlabel1" for="w1-days">1<sup>st</sup> Communication Days</p>
+                                <div class="col-sm-1">
+                                    <input type="text" class="form-control input-sm" name="days1" id="days1" required>
+                                </div>
+                                <div class="col-sm-1">
+                                    <a href="javascript:void(0);" class="add_button" title="Add field">
+                                        <img src="~/Theme/Images/add_icon.png" />
+                                    </a>
+                                </div>
+                            </div>
+                                }
+                            </div>
+                            @*<div class="field_wrapper">
+                                    <div>
+                                        <input type="text" name="field_name[]" value="" />
+
+                                    </div>
+                                </div>*@
+                        </div>
+                        <div id="w1-step2" class="tab-pane">
+                            <div class="form-group">
+                                <div class="col-sm-9">
+                                    <div class="col-sm-2">
+                                        <label class="custom-checkboxcontainer">
+                                            Email List
+                                            @Html.CheckBoxFor(p => p.EmailList, new { })
+                                            <span class="checkmark"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-sm-3" style="padding:0px !important;">
+                                        @Html.DropDownList("EmailListFrequency", listItems, new { @onchange = "Javascript:return enabledropdown('EmailList');" })
+                                    </div>
+                                    <div class="col-sm-7" id="EmailListWeekdaydv" style="display:none;">
+                                        <label>Select Week Day:</label>@Html.DropDownList("EmailListWeekday", WeekDaysItems, new { })
+                                    </div>
+                                    <div class="col-sm-7" id="EmailListMonthdaydv" style="display:none;">
+                                        <label>Select Month Day:</label>
+                                        @Html.DropDownList("EmailListMonthday", MonthDaysItems, new { })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-9">
+                                    <div class="col-sm-2">
+                                        <label class="custom-checkboxcontainer">
+                                            Mail List
+                                            @Html.CheckBoxFor(p => p.MailList, new { })
+                                            <span class="checkmark"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-sm-3" style="padding:0px !important;">
+                                        @Html.DropDownList("MailListFrequency", listItems, new { @onchange = "Javascript:return enabledropdown('MailList');" })
+
+                                    </div>
+                                    <div class="col-sm-7" id="MailListWeekdaydv" style="display:none;">
+                                        <label>Select Week Day:</label>@Html.DropDownList("MailListWeekday", WeekDaysItems, new { })
+                                    </div>
+                                    <div class="col-sm-7" id="MailListMonthdaydv" style="display:none;">
+                                        <label>Select Month Day:</label>
+                                        @Html.DropDownList("MailListMonthday", MonthDaysItems, new { })
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-9">
+                                    <div class="col-sm-2">
+                                        <label class="custom-checkboxcontainer">
+                                            Call List
+                                            @Html.CheckBoxFor(p => p.CallList, new { })
+                                            <span class="checkmark"></span>
+                                        </label>
+                                    </div>
+                                    <div class="col-sm-3" style="padding:0px !important;">
+                                        @Html.DropDownList("CallListFrequency", listItems, new { @onchange = "Javascript:return enabledropdown('CallList');" })
+
+                                    </div>
+                                    <div class="col-sm-7" id="CallListWeekdaydv" style="display:none;">
+                                        <label>Select Week Day:</label> @Html.DropDownList("CallListWeekday", WeekDaysItems, new { })
+                                    </div>
+                                    <div class="col-sm-7" id="CallListMonthdaydv" style="display:none;">
+                                        <label>Select Month Day:</label>
+                                        @Html.DropDownList("CallListMonthday", MonthDaysItems, new { })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="w1-step3" class="tab-pane">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" for="w1-email">Email</label>
+                                <div class="col-sm-3">
+                                    @*<input type="text" class="form-control input-sm" name="email" id="w1-email" required>*@
+                                    @Html.TextBoxFor(p=>p.CommunicationEmail,new { @class= "form-control input-sm",@required="" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="panel-footer">
+                <ul class="pager">
+                    <li class="previous disabled">
+                        <a><i class="fa fa-angle-left"></i> Previous</a>
+                    </li>
+                    <li class="finish hidden pull-right">
+                        <a>Finish</a>
+                    </li>
+                    <li class="next">
+                        <a>Next <i class="fa fa-angle-right"></i></a>
+                    </li>
+                </ul>
+            </div>
+        </section>
+    </div>
+</div>
+@section scripts{
+    <script src="~/Theme/Scripts/jquery.bootstrap.wizard.js"></script>
+    <script src="~/Theme/Scripts/examples.wizard.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var EmailFrequency = '@ViewBag.EmailFrequency';
+            var MailFrequency = '@ViewBag.MailFrequency';
+             var CallFrequency = '@ViewBag.CallFrequency';
+            if (EmailFrequency!= "") {
+                $("#EmailListFrequency").val(EmailFrequency).change();
+                if (EmailFrequency == "Weekly") {
+                    $("#EmailListWeekday").val('@ViewBag.EmailFrequencyDetail').change();
+                }
+                if (EmailFrequency == "Monthly") {
+                    $("#EmailListMonthday").val('@ViewBag.EmailFrequencyDetail').change();
+                }
+            }
+              if (MailFrequency!= "") {
+                  $("#MailListFrequency").val(MailFrequency).change();
+                  if (MailFrequency == "Weekly") {
+                    $("#MailListWeekday").val('@ViewBag.MailFrequencyDetail').change();
+                }
+                  if (MailFrequency == "Monthly") {
+                    $("#MailListMonthday").val('@ViewBag.MailFrequencyDetail').change();
+                }
+            }
+            if (CallFrequency!= "") {
+                $("#CallListFrequency").val(CallFrequency).change();
+                if (CallFrequency == "Weekly") {
+                    $("#CallListWeekday").val('@ViewBag.CallFrequencyDetail').change();
+                }
+                if (CallFrequency == "Monthly") {
+                    $("#CallListMonthday").val('@ViewBag.CallFrequencyDetail').change();
+                }
+            }
+
+            $('#EmailList').change(function () {
+                if ($(this).is(':checked') == false) {
+                    $("#EmailListFrequency").prop('selectedIndex', 0);
+                    $("#EmailListFrequency").prop('required', '');
+                    $("#EmailListWeekday").prop('selectedIndex', 0);
+                    $("#EmailListMonthday").prop('selectedIndex', 0);
+                }
+            });
+            $('#MailList').change(function () {
+                if ($(this).is(':checked') == false) {
+                    $("#MailListFrequency").prop('selectedIndex', 0);
+                    $("#MailListFrequency").prop('required','');
+                    $("#MailListWeekday").prop('selectedIndex', 0);
+                    $("#MailListMonthday").prop('selectedIndex', 0);
+                }
+            });
+            $('#CallList').change(function () {
+                if ($(this).is(':checked') == false) {
+                    $("#CallListFrequency").prop('selectedIndex', 0);
+                    $("#CallListFrequency").prop('required', '');
+                    $("#CallListWeekday").prop('selectedIndex', 0);
+                    $("#CallListMonthday").prop('selectedIndex', 0);
+                }
+            });
+            var maxField = 9; //Input fields increment limitation
+            var addButton = $('.add_button'); //Add button selector
+            var wrapper = $('.field_wrapper'); //Input field wrapper
+            var x = @ViewBag.TotalDays; //Initial field counter is 1
+
+            //Once add button is clicked
+            $(addButton).click(function () {
+                //Check maximum number of input fields
+                if (x < maxField) {
+                    x++; //Increment field counter
+                    var fieldHTML = '<div class="form-group"> <p class="col-sm-4 control-label configlabel" id="configlabel' + x + '">' + x + 'th Communication Days</p><div class="col-sm-2"><input type="text" class="form-control input-sm" name="days' + x + '" id="days' + x + '" required /></div><div class="col-sm-1"><a href="javascript:void(0);" class="remove_button"><img src = "../Theme/Images/remove_icon.png" /></a></div></div>'; //New input field html
+                    $(wrapper).append(fieldHTML); //Add field html
+                    updateidsandtext();
+                }
+            });
+
+            //Once remove button is clicked
+            $(wrapper).on('click', '.remove_button', function (e) {
+                e.preventDefault();
+                $(this).closest('div[class^="form-group"]').remove();
+                x--; //Decrement field counter
+                updateidsandtext();
+            });
+
+            function updateidsandtext() {
+                var lbls = document.getElementById('w1-step1').querySelectorAll('.configlabel');
+                //alert(lbls.length);
+                for (var i = 0, len = lbls.length; i < len; i++) {
+                    var rownum = i + 1;
+                    if (rownum == 1) {
+                        daysstring = "st";
+                    }
+                    else if (rownum == 2) {
+                        daysstring = "nd";
+                    }
+                    else if (rownum == 3) {
+                        daysstring = "rd";
+                    }
+                    else if (rownum > 3) {
+                        daysstring = "th";
+                    }
+                    $("#" + lbls[i].getAttribute("id")).empty();
+                    $("#" + lbls[i].getAttribute("id")).append(rownum +"<sup>"+ daysstring + "</sup> Communication Days");
+                    $("#" + lbls[i].getAttribute("id").replace("configlabel", "days")).prop("name", "days" + rownum.toString());
+                    $("#" + lbls[i].getAttribute("id").replace("configlabel", "days")).prop("id", "days" + rownum.toString());
+                    $("#" + lbls[i].getAttribute("id")).prop("id", "configlabel" + rownum.toString());
+                }
+            }
+
+
+        });
+
+        function enabledropdown(dropdownid) {
+            $("#" + dropdownid + "Weekdaydv").prop("style", "display:none");
+            $("#" + dropdownid + "Monthdaydv").prop("style", "display:none");
+
+            if ($("#" + dropdownid + "Frequency option:selected").text() != "Select Frequency") {
+                $("#" + dropdownid).prop("checked", true);
+
+            }
+            else {
+                $("#" + dropdownid).prop("checked", false);
+            }
+            if ($("#" + dropdownid + "Frequency option:selected").text() == "Weekly") {
+                $("#" + dropdownid + "Weekdaydv").prop("style", "display:block");
+            }
+            else if ($("#" + dropdownid + "Frequency option:selected").text() == "Monthly") {
+                $("#" + dropdownid + "Monthdaydv").prop("style", "display:block");
+            }
+
+        }
+    </script>
+
+}
+
